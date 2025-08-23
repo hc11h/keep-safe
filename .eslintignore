@@ -1,0 +1,7 @@
+# Ignore build and deps
+node_modules/
+dist/
+coverage/
+
+# Optional: ignore config files if you don’t want linting them
+*.config.js

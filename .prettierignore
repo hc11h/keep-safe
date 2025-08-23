@@ -1,0 +1,8 @@
+# Same as eslintignore
+node_modules/
+dist/
+coverage/
+
+# Ignore docs and generated files
+*.md
+*.json
