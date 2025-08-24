@@ -12,7 +12,7 @@ const options: swaggerJSDoc.Options = {
     },
     servers: [
       {
-        url: 'http://localhost:4000/api',
+        url: process.env.BASE_URL || 'http://localhost:4000/api',
       },
     ],
     components: {
@@ -25,7 +25,11 @@ const options: swaggerJSDoc.Options = {
       },
     },
   },
-  apis: ['./src/api/routes/*.ts'],
+  apis: [
+    process.env.NODE_ENV === 'production'
+      ? './dist/api/routes/*.js'
+      : './src/api/routes/*.ts',
+  ],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
