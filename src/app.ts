@@ -1,7 +1,9 @@
 import express, { Application, Router } from 'express';
 import routes from './api/routes';
 import { setupSwagger } from './docs/swagger';
+
 const router = Router();
+
 export const createServer = (): Application => {
     const app = express();
 
@@ -11,7 +13,7 @@ export const createServer = (): Application => {
         res.json('working...');
     });
 
-    app.use('/', router)
+    app.use('/', router);
     app.use('/api', routes);
 
     setupSwagger(app);
