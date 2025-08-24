@@ -2,19 +2,18 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../../infrastructure/db/prisma';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
+import config from '../../infrastructure/config';
 
 export const signup = async (req: Request, res: Response) => {
     try {
         const { email, password, name } = req.body;
 
-
+        // Email validation (stub) - TODO: Implement proper email validation
         if (!email || !email.includes('@')) {
             return res.status(400).json({ error: 'Invalid email format' });
         }
 
-
+        // Check if user already exists
         const existingUser = await prisma.user.findUnique({
             where: { email }
         });
@@ -23,7 +22,7 @@ export const signup = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'User already exists' });
         }
 
-
+        // Hash password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -36,10 +35,11 @@ export const signup = async (req: Request, res: Response) => {
             }
         });
 
+        // Generate JWT
         const token = jwt.sign(
             { userId: user.id, email: user.email },
-            JWT_SECRET,
-            { expiresIn: '24h' }
+            config.jwt.secret as jwt.Secret,
+            { expiresIn: config.jwt.expiresIn }
         );
 
         res.status(201).json({
@@ -61,7 +61,7 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
-
+        // Find user
         const user = await prisma.user.findUnique({
             where: { email }
         });
@@ -77,10 +77,11 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        // Generate JWT
         const token = jwt.sign(
             { userId: user.id, email: user.email },
-            JWT_SECRET,
-            { expiresIn: '24h' }
+            config.jwt.secret as jwt.Secret,
+            { expiresIn: config.jwt.expiresIn }
         );
 
         res.json({

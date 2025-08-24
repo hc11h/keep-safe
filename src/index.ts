@@ -1,12 +1,13 @@
-import { config } from 'dotenv';
+import { config as dotenvConfig } from 'dotenv';
 import { createServer } from './app';
+import { config } from './infrastructure/config';
 
-config(); // load .env
 
-const PORT = process.env.PORT || 3000;
+dotenvConfig();
+
 const app = createServer();
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
-    console.log(`📖 Swagger docs available at http://localhost:${PORT}/docs`);
-  });
+app.listen(config.server.port, () => {
+    console.log(`Server running at http://localhost:${config.server.port}`);
+    console.log(`Swagger docs available at http://localhost:${config.server.port}/docs`);
+});
