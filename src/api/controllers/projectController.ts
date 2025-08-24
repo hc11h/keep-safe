@@ -8,7 +8,7 @@ interface AuthRequest extends Request {
   };
 }
 
-// Get all projects for the authenticated user
+
 export const getProjects = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -36,7 +36,6 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Create a new project
 export const createProject = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -75,7 +74,6 @@ export const createProject = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Get a specific project by ID
 export const getProject = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -110,7 +108,6 @@ export const getProject = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Update a project
 export const updateProject = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -125,7 +122,6 @@ export const updateProject = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Project name cannot be empty' });
     }
 
-    // Check if project exists and belongs to user
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
@@ -162,7 +158,6 @@ export const updateProject = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Delete a project
 export const deleteProject = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
@@ -172,7 +167,6 @@ export const deleteProject = async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    // Check if project exists and belongs to user
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
@@ -184,7 +178,6 @@ export const deleteProject = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    // Delete project (cascade will handle related secrets)
     await prisma.project.delete({
       where: { id }
     });

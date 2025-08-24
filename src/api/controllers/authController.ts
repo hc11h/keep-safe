@@ -8,12 +8,11 @@ export const signup = async (req: Request, res: Response) => {
     try {
         const { email, password, name } = req.body;
 
-        // Email validation (stub) - TODO: Implement proper email validation
+      
         if (!email || !email.includes('@')) {
             return res.status(400).json({ error: 'Invalid email format' });
         }
 
-        // Check if user already exists
         const existingUser = await prisma.user.findUnique({
             where: { email }
         });
@@ -22,11 +21,9 @@ export const signup = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'User already exists' });
         }
 
-        // Hash password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Create user
         const user = await prisma.user.create({
             data: {
                 email,
@@ -35,7 +32,6 @@ export const signup = async (req: Request, res: Response) => {
             }
         });
 
-        // Generate JWT
         const token = jwt.sign(
             { userId: user.id, email: user.email },
             config.jwt.secret as any,
@@ -61,7 +57,6 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
-        // Find user
         const user = await prisma.user.findUnique({
             where: { email }
         });
@@ -70,14 +65,12 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Verify password
         const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Generate JWT
         const token = jwt.sign(
             { userId: user.id, email: user.email },
             config.jwt.secret as any,
