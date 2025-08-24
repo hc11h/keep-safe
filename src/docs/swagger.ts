@@ -6,15 +6,24 @@ const options: swaggerJSDoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Express Backend API',
+      title: 'Keep Safe API',
       version: '1.0.0',
-      description: 'API documentation for the Express backend',
+      description: 'API documentation for the Keep Safe backend',
     },
     servers: [
       {
         url: 'http://localhost:4000/api',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
   },
   apis: ['./src/api/routes/*.ts'],
 };
