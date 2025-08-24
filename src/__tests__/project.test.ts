@@ -1,25 +1,25 @@
 import { Request, Response } from 'express';
 import { getProjects, createProject, getProject, updateProject, deleteProject } from '../api/controllers/projectController';
 
-// Mock Prisma client
-const mockPrisma = {
-  project: {
-    findMany: jest.fn(),
-    create: jest.fn(),
-    findFirst: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  },
-};
-
 // Mock the prisma import
 jest.mock('../infrastructure/db/prisma', () => ({
   __esModule: true,
-  default: mockPrisma,
+  default: {
+    project: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
 }));
 
+// Import the mocked prisma
+import prisma from '../infrastructure/db/prisma';
+
 describe('Project Controller', () => {
-  let mockRequest: Partial<Request>;
+  let mockRequest: Partial<Request & { user?: { userId: string; email: string } }>;
   let mockResponse: Partial<Response>;
   let mockNext: jest.Mock;
 
@@ -42,11 +42,11 @@ describe('Project Controller', () => {
       const mockProjects = [
         { id: '1', name: 'Project 1', description: 'Test project', createdAt: new Date(), updatedAt: new Date() }
       ];
-      mockPrisma.project.findMany.mockResolvedValue(mockProjects);
+      (prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects);
 
       await getProjects(mockRequest as Request, mockResponse as Response);
 
-      expect(mockPrisma.project.findMany).toHaveBeenCalledWith({
+      expect(prisma.project.findMany).toHaveBeenCalledWith({
         where: { userId: 'test-user-id' },
         select: {
           id: true,
@@ -74,11 +74,11 @@ describe('Project Controller', () => {
     it('should create a new project', async () => {
       const mockProject = { id: '1', name: 'New Project', description: 'Test', createdAt: new Date(), updatedAt: new Date() };
       mockRequest.body = { name: 'New Project', description: 'Test' };
-      mockPrisma.project.create.mockResolvedValue(mockProject);
+      (prisma.project.create as jest.Mock).mockResolvedValue(mockProject);
 
       await createProject(mockRequest as Request, mockResponse as Response);
 
-      expect(mockPrisma.project.create).toHaveBeenCalledWith({
+      expect(prisma.project.create).toHaveBeenCalledWith({
         data: {
           name: 'New Project',
           description: 'Test',
@@ -122,11 +122,11 @@ describe('Project Controller', () => {
     it('should return project if it exists and belongs to user', async () => {
       const mockProject = { id: '1', name: 'Project 1', description: 'Test', createdAt: new Date(), updatedAt: new Date() };
       mockRequest.params = { id: '1' };
-      mockPrisma.project.findFirst.mockResolvedValue(mockProject);
+      (prisma.project.findFirst as jest.Mock).mockResolvedValue(mockProject);
 
       await getProject(mockRequest as Request, mockResponse as Response);
 
-      expect(mockPrisma.project.findFirst).toHaveBeenCalledWith({
+      expect(prisma.project.findFirst).toHaveBeenCalledWith({
         where: { id: '1', userId: 'test-user-id' },
         select: {
           id: true,
@@ -141,7 +141,7 @@ describe('Project Controller', () => {
 
     it('should return 404 if project not found', async () => {
       mockRequest.params = { id: '1' };
-      mockPrisma.project.findFirst.mockResolvedValue(null);
+      (prisma.project.findFirst as jest.Mock).mockResolvedValue(null);
 
       await getProject(mockRequest as Request, mockResponse as Response);
 
@@ -155,12 +155,12 @@ describe('Project Controller', () => {
       const mockProject = { id: '1', name: 'Updated Project', description: 'Updated', createdAt: new Date(), updatedAt: new Date() };
       mockRequest.params = { id: '1' };
       mockRequest.body = { name: 'Updated Project', description: 'Updated' };
-      mockPrisma.project.findFirst.mockResolvedValue({ id: '1' });
-      mockPrisma.project.update.mockResolvedValue(mockProject);
+      (prisma.project.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
+      (prisma.project.update as jest.Mock).mockResolvedValue(mockProject);
 
       await updateProject(mockRequest as Request, mockResponse as Response);
 
-      expect(mockPrisma.project.update).toHaveBeenCalledWith({
+      expect(prisma.project.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: {
           name: 'Updated Project',
@@ -183,7 +183,7 @@ describe('Project Controller', () => {
     it('should return 404 if project not found', async () => {
       mockRequest.params = { id: '1' };
       mockRequest.body = { name: 'Updated Project' };
-      mockPrisma.project.findFirst.mockResolvedValue(null);
+      (prisma.project.findFirst as jest.Mock).mockResolvedValue(null);
 
       await updateProject(mockRequest as Request, mockResponse as Response);
 
@@ -195,12 +195,12 @@ describe('Project Controller', () => {
   describe('deleteProject', () => {
     it('should delete project if it exists and belongs to user', async () => {
       mockRequest.params = { id: '1' };
-      mockPrisma.project.findFirst.mockResolvedValue({ id: '1' });
-      mockPrisma.project.delete.mockResolvedValue({ id: '1' });
+      (prisma.project.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
+      (prisma.project.delete as jest.Mock).mockResolvedValue({ id: '1' });
 
       await deleteProject(mockRequest as Request, mockResponse as Response);
 
-      expect(mockPrisma.project.delete).toHaveBeenCalledWith({
+      expect(prisma.project.delete).toHaveBeenCalledWith({
         where: { id: '1' }
       });
       expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Project deleted successfully' });
@@ -208,7 +208,7 @@ describe('Project Controller', () => {
 
     it('should return 404 if project not found', async () => {
       mockRequest.params = { id: '1' };
-      mockPrisma.project.findFirst.mockResolvedValue(null);
+      (prisma.project.findFirst as jest.Mock).mockResolvedValue(null);
 
       await deleteProject(mockRequest as Request, mockResponse as Response);
 

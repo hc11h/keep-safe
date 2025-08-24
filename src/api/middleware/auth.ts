@@ -18,7 +18,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   }
 
   try {
-    const decoded = jwt.verify(token, config.jwt.secret) as { userId: string; email: string };
+    const decoded = jwt.verify(token, config.jwt.secret as any) as { userId: string; email: string };
     req.user = decoded;
     next();
   } catch (error) {

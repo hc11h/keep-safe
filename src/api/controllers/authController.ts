@@ -38,8 +38,8 @@ export const signup = async (req: Request, res: Response) => {
         // Generate JWT
         const token = jwt.sign(
             { userId: user.id, email: user.email },
-            config.jwt.secret as jwt.Secret,
-            { expiresIn: config.jwt.expiresIn }
+            config.jwt.secret as any,
+            { expiresIn: config.jwt.expiresIn as any }
         );
 
         res.status(201).json({
@@ -80,8 +80,8 @@ export const login = async (req: Request, res: Response) => {
         // Generate JWT
         const token = jwt.sign(
             { userId: user.id, email: user.email },
-            config.jwt.secret as jwt.Secret,
-            { expiresIn: config.jwt.expiresIn }
+            config.jwt.secret as any,
+            { expiresIn: config.jwt.expiresIn as any }
         );
 
         res.json({

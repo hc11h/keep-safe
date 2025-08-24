@@ -2,7 +2,7 @@ import { config as dotenvConfig } from 'dotenv';
 import { createServer } from './app';
 import { config } from './infrastructure/config';
 
-
+// Load environment variables
 dotenvConfig();
 
 const app = createServer();
